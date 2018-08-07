@@ -17,30 +17,8 @@ try? setupObj.setup()
 let server = HTTPServer()
 server.serverPort = 8080
 
-func events(request: HTTPRequest, response: HTTPResponse) {
-    do {
-        let getObj = Event()
-        try getObj.findAll()
-        
-        var events: [[String: Any]] = []
-        
-        for row in getObj.rows() {
-            events.append(row.asDictionary())
-        }
-        
-        try response.setBody(json: events)
-            .setHeader(.contentType, value: "Application/json")
-            .completed()
-        
-    } catch  {
-        response.setBody(string: "error handling the request")
-            .completed(status: .internalServerError)
-    }
-}
-
-var routes = Routes()
-routes.add(method: .get, uri: "/events", handler: events)
-server.addRoutes(routes)
+let eventController = EventController()
+server.addRoutes(Routes(eventController.routes))
 
 do {
     try server.start()
